@@ -1,12 +1,27 @@
-import { Text } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 
 export default function profile() {
   return (
-    <SafeAreaView>
-      <Text className="dark:text-white">Profile</Text>
-      
+    <SafeAreaView className="flex-1 items-center justify-center ">
+      <View className="flex-1   max-h-80 w-4/5 p-10">
+        <View className=""> 
+          <Text className="text-black dark:text-white text-2xl">账号</Text>
+        </View>
+        <TextInput className="dark:bg-gray-800  p-2 dark:text-gray-200 h-[50px] border-2 rounded-2xl" placeholder="@example.com" />
+        <View className="mt-2"> 
+          <Text className="text-black dark:text-gray-200 text-2xl">密码</Text>
+        </View>
+        <TextInput className="dark:bg-gray-800  p-2 dark:text-gray-200 h-[50px] border-2 rounded-2xl" placeholder="密码" />
+        
+      </View>
+      <TouchableOpacity className="dark:bg-gray-800 w-3/4 flex items-center justify-center mt-10 p-2 dark:text-gray-200 h-[50px] border-2 rounded-2xl " >
+        <Text className="text-white text-center font-bold">登录</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity className="dark:bg-gray-800 w-3/4 flex items-center justify-center mt-5 p-2 dark:text-gray-200 h-[50px] border-2 rounded-2xl" >
+        <Text className="text-white text-center font-bold">注册</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
