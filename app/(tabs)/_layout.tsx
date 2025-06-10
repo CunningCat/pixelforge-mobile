@@ -24,12 +24,13 @@ export default function TabLayout() {
           },
           default: {},
         }),
-      }}>
-        <Tabs.Screen
+      }}
+    >
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />, 
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -46,7 +47,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
-      
     </Tabs>
   );
 }

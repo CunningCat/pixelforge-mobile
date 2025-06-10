@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabaseClient";
-import dayjs from "dayjs";
+import { supabase } from '@/lib/supabaseClient';
+import dayjs from 'dayjs';
 type PostWithUserInfo = {
   title: string;
   content: string;
@@ -14,12 +14,11 @@ type PostWithUserInfo = {
     avatar_url?: string;
   };
 };
-export async function getLatestNews(offset = 0, itemnum = 5,) {
-  
- 
+export async function getLatestNews(offset = 0, itemnum = 5) {
   const { data, error } = await supabase
-  .from('posts')
-  .select(`
+    .from('posts')
+    .select(
+      `
     title,
     content,
     image_url,
@@ -33,19 +32,20 @@ export async function getLatestNews(offset = 0, itemnum = 5,) {
     user_info (
       avatar_url
     )
-  `)
-  .order('created_time', { ascending: false })
-  .range(offset, offset + itemnum - 1);
+  `,
+    )
+    .order('created_time', { ascending: false })
+    .range(offset, offset + itemnum - 1);
 
   if (error) {
     console.error('从 Supabase 获取最新帖子失败：', error.message);
     return [];
   }
   //对返回的时间进行格式化处理
-  const formattedData = (data as PostWithUserInfo[]).map(item => {
+  const formattedData = (data as PostWithUserInfo[]).map((item) => {
     return {
       ...item,
-      created_time : dayjs(item.created_time).format('YYYY-MM-DD HH:mm:ss'),
+      created_time: dayjs(item.created_time).format('YYYY-MM-DD HH:mm:ss'),
       avatar_url: item.user_info?.avatar_url || '',
     };
   });

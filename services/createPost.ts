@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { PostUploadInfo } from '@/types/postuploadinfo';
-export default async function createPost({PostInfo:postinfo}: {PostInfo: PostUploadInfo}) {
-  
+export default async function createPost({ PostInfo: postinfo }: { PostInfo: PostUploadInfo }) {
   const { error } = await supabase.from('posts').insert([
     {
       user_id: postinfo.uid,
@@ -9,14 +8,13 @@ export default async function createPost({PostInfo:postinfo}: {PostInfo: PostUpl
       content: postinfo.content,
       image_url: postinfo.imageUrl,
       author: postinfo.author,
-      community_category:postinfo.community
-    }
+      community_category: postinfo.community,
+    },
   ]);
-  
+
   if (error) {
-   
     console.error('插入帖子失败：', error.message);
-    
+
     return null;
   }
 

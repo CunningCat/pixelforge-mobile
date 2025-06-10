@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-export default async function addComment({...prop}) {
-  const { error } = await supabase.from("comments").insert([
+export default async function addComment({ ...prop }) {
+  const { error } = await supabase.from('comments').insert([
     {
       content: prop.content,
       post_id: prop.post_id,
@@ -10,9 +10,9 @@ export default async function addComment({...prop}) {
     },
   ]);
   if (error) {
-    console.error("插入评论失败", error);
+    console.error('插入评论失败', error);
     return false;
   }
-  
+
   return true;
 }
