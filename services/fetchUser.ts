@@ -1,5 +1,5 @@
+import { supabase } from '@/lib/supabase';
 import { User } from '@/types/user';
-import { supabase } from '@/lib/supabaseClient';
 
 export async function fetchUserFromSupabase(userId: string): Promise<User | null> {
   if (!userId) {
