@@ -4,7 +4,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { Image, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 export default function ProfileMine() {
   useInitUser();
-  const { uid, name, avatar_url } = useUserStore();
+  const {  name, avatar_url } = useUserStore();
   const handleLogout =async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
