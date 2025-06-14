@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import dayjs from 'dayjs';
 export default async function getCommentList({
   post_id,

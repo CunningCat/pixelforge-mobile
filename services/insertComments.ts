@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 export default async function submitComment(postId: string, userId: string, content: string) {
   let isSuccess = true;

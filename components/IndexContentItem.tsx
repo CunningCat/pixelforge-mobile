@@ -1,8 +1,14 @@
 import { Post } from "@/types/post";
-import { Image, Text, View } from "react-native";
-export default function IndexContentItem({post}:{post:Post}) {
+import { useRouter } from "expo-router";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+export default function IndexContentItem({ post }: { post: Post }) {
+  const router = useRouter();
   return (
-    <View className="flex p-2 bg-white dark:bg-gray-900 rounded-2xl mt-2">
+    <TouchableOpacity className="flex p-2 bg-white dark:bg-gray-900 rounded-2xl mt-2"
+      onPress={() => router.push({
+      pathname: '/post/[id]',
+      params: { id: post.post_id },
+    })}>
       <View className=" flex flex-row items-center gap-2">
         <Image className="w-5 h-5" source={{uri:post.avatar_url}} />
         <Text className="text-black text-2xl dark:text-zinc-300">{post.author}</Text>
@@ -27,6 +33,6 @@ export default function IndexContentItem({post}:{post:Post}) {
           <Text className="text-black text-xl dark:text-gray-500">评论:{post.commentnum}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }

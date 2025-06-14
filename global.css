@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@layer components {
+  .head {
+    @apply text-2xl p-2 h-14 font-bold text-gray-900 dark:text-white;
+  }
+  .headtext {
+    @apply dark:text-white text-black text-2xl
+  }
+}

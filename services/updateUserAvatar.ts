@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 export default function UploadAvatar(uid: string): Promise<string> {
   return new Promise((resolve) => {

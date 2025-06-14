@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 export default function UploadImage(uid: string): Promise<string> {
   return new Promise((resolve) => {

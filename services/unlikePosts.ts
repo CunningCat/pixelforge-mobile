@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 export async function unlikePost(postId: string, userId: string) {
   const { data: existingLike, error: likeQueryError } = await supabase

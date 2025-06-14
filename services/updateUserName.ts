@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 export async function updateUserName(newName: string) {
   const { data, error } = await supabase
     .from('user_info')
