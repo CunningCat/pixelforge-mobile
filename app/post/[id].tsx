@@ -8,28 +8,42 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import Loading from '../Loading';
 export default function PostDetails() {
   const { id } = useLocalSearchParams();
   const [data, setData] = useState<PostDetail | null>(null);
   const [commentlist, setCommentList] = useState<Comments[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const getPostDetails = async () => {
-    const { data } = await getPostInfo(String(id));
-    if (!data) return;
-    setData(data);
-    
-  }
-  const initCommentList = async () => {
-    const  data  = await getCommentList({ post_id: String(id) });
-    if (!data) return;
-    setCommentList(data);
-    
-  }
+ 
 
   useEffect(() => {
-    getPostDetails();
-    initCommentList();
+    const loadData = async () => {
+    setLoading(true); // 开始加载
+
+    try {
+      const [postResult, commentResult] = await Promise.all([
+        getPostInfo(String(id)),
+        getCommentList({ post_id: String(id) }),
+      ]);
+
+      if (postResult?.data) {
+        setData(postResult.data);
+      }
+
+      if (commentResult) {
+        setCommentList(commentResult);
+      }
+
+    } catch (error) {
+      console.error('加载帖子或评论失败:', error);
+    } finally {
+      setLoading(false); // 不管是否报错都关闭加载状态
+    }
+  };
+
+  loadData();
+
     return () => {
       setData(null);
     }
@@ -76,14 +90,14 @@ export default function PostDetails() {
         </TouchableOpacity>
         <Text className='headtext text-center w-full'>正文</Text>
         </View>
-      
-      <FlatList 
+      {loading?<Loading />:<FlatList 
         data={commentlist}
         keyExtractor={(item) => item.id}
         renderItem={renderCommentItem}
         ListHeaderComponent={renderPostHeader}
         contentContainerStyle={{ paddingBottom: 40 }}
-      />
+      />}
+      
       
     </SafeAreaView>
   );
