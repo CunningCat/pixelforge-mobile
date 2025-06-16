@@ -3,13 +3,13 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const router = useRouter();
   return (
     <Tabs
       screenOptions={{
@@ -27,13 +27,6 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
@@ -41,12 +34,32 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+         name="dummy" // 一个空页面
+         options={{
+           tabBarLabel: 'Create',
+           tabBarButton: (props) => (
+             <TouchableOpacity
+               style={{
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 flex: 1,
+               }}
+               onPress={() => router.push('/modal/create')}
+             >
+               <IconSymbol size={28} name="plus.square.fill" color="white" />
+             </TouchableOpacity>
+           ),
+         }}
+      />
+      <Tabs.Screen
+        name="profile"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
+      
+      
     </Tabs>
   );
 }

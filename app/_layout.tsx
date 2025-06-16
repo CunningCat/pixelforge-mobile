@@ -30,7 +30,7 @@ export default function RootLayout() {
   }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        
+        <Stack.Screen name="modal/create" options={{ presentation: 'modal', headerShown: false,contentStyle: { paddingTop: 0 },  gestureEnabled: false  }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

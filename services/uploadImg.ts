@@ -1,56 +1,163 @@
 import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import { Platform } from 'react-native';
 
-export default function UploadImage(uid: string): Promise<string> {
-  return new Promise((resolve) => {
-    if (!uid) {
-      console.error('userId 不能为空');
-      return;
+export default async function uploadImage(uid: string): Promise<string> {
+  if (!uid) return '';
+
+  try {
+    // 检查权限
+    const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!granted) {
+      console.warn('Media library permissions not granted');
+      return '';
     }
 
-    // 创建一个本地文件选择器
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    // 选择图片
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8, // 降低质量以减少文件大小，同时保持可接受的图片质量
+    });
 
-    // 监听文件选择
-    input.onchange = async (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      if (!target.files || target.files.length === 0) {
-        console.log('没有选择任何文件');
-        return;
-      }
+    if (pickerResult.canceled) return '';
 
-      const file = target.files[0];
-      const filePath = `${uid}/${Date.now()}-${file.name}`;
+    const asset = pickerResult.assets[0];
+    if (!asset) return '';
 
-      const { error } = await supabase.storage.from('post-image').upload(filePath, file, {
-        cacheControl: '3600',
+    const { uri } = asset;
+    const fileExt = getFileExtension(uri);
+    const mimeType = getMimeType(fileExt);
+    const filePath = `${uid}/${Date.now()}.${fileExt}`;
+
+    // 确保文件存在并获取信息
+    const fileInfo = await FileSystem.getInfoAsync(uri);
+    console.log('File info:', fileInfo);
+
+    if (!fileInfo.exists) {
+      console.error('File does not exist:', uri);
+      return '';
+    }
+
+    // 根据平台选择不同的上传策略
+    let fileToUpload;
+    
+    if (Platform.OS === 'ios') {
+      // iOS 特殊处理
+      fileToUpload = await prepareFileForUploadiOS(uri, mimeType);
+    } else {
+      // Android 或 Web
+      fileToUpload = await prepareFileForUploadDefault(uri, mimeType);
+    }
+
+    // 上传到 Supabase
+    const { error: uploadError } = await supabase.storage
+      .from('post-image')
+      .upload(filePath, fileToUpload, {
+        contentType: mimeType,
         upsert: false,
       });
 
-      if (error) {
-        console.error('上传失败:', error.message);
-        alert('上传失败: ' + error.message);
-        return;
-      }
-      // 获取文件的签名 URL（如果需要签名 URL）
-      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-        .from('post-image')
-        .createSignedUrl(filePath, 60 * 60 * 24 * 365); // url1年有效期
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
 
-      if (signedUrlError) {
-        console.error('生成签名URL失败:', signedUrlError.message);
-        resolve(''); // 生成签名 URL 失败，返回空字符串
-        return;
-      }
+    const { data, error: urlError } = await supabase.storage
+      .from('post-image')
+      .createSignedUrl(filePath, 60 * 60 * 24 * 365);
 
-      console.log('上传图片成功');
+    if (urlError) throw new Error(`Failed to get signed URL: ${urlError.message}`);
 
-      // 这里可以返回或处理 URL
-      resolve(signedUrlData.signedUrl);
-    };
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Upload process error:', error);
+    return '';
+  }
+}
 
-    // 自动弹出文件选择框
-    input.click();
-  });
+// 辅助函数：获取文件扩展名
+function getFileExtension(uri: string): string {
+  const ext = uri.split('.').pop()?.toLowerCase() || 'jpg';
+  // 处理特殊情况，如query参数
+  return ext.split('?')[0];
+}
+
+// 辅助函数：获取MIME类型
+function getMimeType(fileExt: string): string {
+  const mimeMap: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+  };
+  return mimeMap[fileExt] || 'image/jpeg';
+}
+
+// iOS 专用文件处理
+async function prepareFileForUploadiOS(uri: string, mimeType: string) {
+  try {
+    // 尝试方法1：使用fetch
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    console.log('Method 1: Using fetch - Blob size:', blob.size);
+    if (blob.size > 0) return blob;
+
+    // 如果fetch失败，尝试方法2：使用XMLHttpRequest
+    const blobViaXHR = await new Promise<Blob>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => resolve(xhr.response);
+      xhr.onerror = () => reject(new Error('XHR failed'));
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send();
+    });
+    console.log('Method 2: Using XHR - Blob size:', blobViaXHR.size);
+    if (blobViaXHR.size > 0) return blobViaXHR;
+
+    // 如果以上两种方法都失败，尝试复制文件到临时位置
+    const tempPath = `${FileSystem.cacheDirectory}temp-${Date.now()}.jpg`;
+    await FileSystem.copyAsync({ from: uri, to: tempPath });
+    
+    const fileInfo = await FileSystem.getInfoAsync(tempPath);
+    console.log('Method 3: Copied file - Size:', fileInfo.uri);
+    
+    if (fileInfo.uri ) {
+      // 读取文件为Uint8Array
+      const fileContent = await FileSystem.readAsStringAsync(tempPath, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      
+      const uint8Array = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
+      return new Blob([uint8Array], { type: mimeType });
+    }
+
+    throw new Error('All methods failed to prepare file');
+  } catch (error) {
+    console.error('iOS file preparation error:', error);
+    throw error;
+  }
+}
+
+// 默认文件处理方法
+async function prepareFileForUploadDefault(uri: string, mimeType: string) {
+  try {
+    // 对于Android和Web，直接使用fetch通常就足够了
+    const response = await fetch(uri);
+    return await response.blob();
+  } catch (error) {
+    console.error('Default file preparation error:', error);
+    
+    // 备选方案：复制到临时位置
+    const tempPath = `${FileSystem.cacheDirectory}temp-${Date.now()}.jpg`;
+    await FileSystem.copyAsync({ from: uri, to: tempPath });
+    
+    const fileContent = await FileSystem.readAsStringAsync(tempPath, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    
+    const uint8Array = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
+    return new Blob([uint8Array], { type: mimeType });
+  }
 }
