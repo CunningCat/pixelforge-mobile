@@ -53,8 +53,10 @@ export default function PostDetails() {
   //帖子正文
   const renderPostHeader = () => (
     <View className='mb-10 p-2'>
-      <View className='flex-1 items-center justify-center'>
-        {data?.image_url && <Image className='w-80 h-80' source={{ uri: data?.image_url }} />}
+      <View className='flex-1'>
+        <View className='items-center justify-center'>
+          {data?.image_url && <Image className='w-80 h-80' source={{ uri: data?.image_url }} />}
+        </View>
         <View className='p-2'>
           <View className='flex flex-row  gap-2'>
             <Image className='w-8 h-8 rounded-full' source={{ uri: data?.avatar_url }} />
@@ -63,9 +65,9 @@ export default function PostDetails() {
           <Text className='text-2xl dark:text-white'>{data?.title}</Text>
           <Text className='text-lg dark:text-white'>{data?.content}</Text>
           <View className='flex flex-row gap-2'>
-            <Text className='text-lg dark:text-white'>分区:{data?.community_category}</Text>
+            <Text className='text-lg dark:text-slate-300'>分区:{data?.community_category}</Text>
           </View>
-          <Text className='text-lg dark:text-white'>{data?.created_time}</Text>
+          <Text className='text-lg dark:text-slate-300'>{data?.created_time}</Text>
         </View>
       </View>
     </View>

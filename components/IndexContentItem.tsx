@@ -19,9 +19,10 @@ export default function IndexContentItem({ post }: { post: Post }) {
       <View className=" bg-white dark:bg-gray-900" >
         <Text  className="text-black text-2xl dark:text-zinc-300" numberOfLines={3}>{post.content}</Text>
       </View>
+      {post.image_url &&
       <View className=" bg-white dark:bg-gray-900">
         <Image className="w-40 h-40" source={{uri:post.image_url}} />
-      </View>
+      </View>}
       <View className="p-2 flex flex-row justify-between items-center mt-2">
       {post.community_category?
         <View className=" bg-white dark:bg-gray-500 rounded-2xl p-2">
