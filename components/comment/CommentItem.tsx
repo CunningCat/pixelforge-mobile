@@ -5,7 +5,7 @@ export default function CommentItem(props: Comments) {
 
   return (
     <View>
-      <View className="flex flex-row gap-2">
+      <View className="flex flex-row gap-2 p-2">
         <Image className="w-8 h-8 rounded-full" source={{ uri: props.user_avatar }} />
         <View className="flex ">
           <Text className="text-black text-2xl dark:text-slate-400">{props.author}</Text>

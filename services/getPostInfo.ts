@@ -28,5 +28,6 @@ export async function getPostInfo(id: string) {
     created_time: dayjs(data?.created_time).format('YYYY-MM-DD HH:mm:ss'),
     avatar_url: (data.user_info as any)?.avatar_url || '',
   };
+  
   return { data: formattedData, isSuccess };
 }
