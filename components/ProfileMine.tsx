@@ -2,9 +2,10 @@ import useInitUser from "@/hooks/useInitUser";
 import { supabase } from "@/lib/supabase";
 import { useUserStore } from "@/store/useUserStore";
 import { Image, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import IndexContent from "./IndexContent";
 export default function ProfileMine() {
   useInitUser();
-  const {  name, avatar_url } = useUserStore();
+  const { uid, name, avatar_url } = useUserStore();
   const handleLogout =async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -17,7 +18,7 @@ export default function ProfileMine() {
     }
   }
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1">
       <View className="h-16 dark:bg-gray-500 rounded-2xl m-2 flex justify-center p-2">
         <TouchableOpacity
           className=" dark:bg-gray-50  ml-auto"
@@ -31,10 +32,16 @@ export default function ProfileMine() {
           <Image className="w-20 h-20 rounded-full" source={{ uri: avatar_url }} />
           <Text className="text-black text-2xl dark:text-white">{name }</Text>
         </View>
-
-
-        
       </View>
+      <View className="p-2 ">
+        <Text className="dark:text-white text-2xl">我的帖子</Text>
+      </View>
+      {/* 帖子列表 */}
+      <View className="flex-1">
+        <IndexContent uid={uid} />
+      </View>
+      
+      
     </SafeAreaView>
   )
 }

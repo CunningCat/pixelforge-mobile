@@ -40,7 +40,7 @@ export default async function getSelfPost(uid: string, offset = 0, itemnum = 5) 
     .range(offset, offset + itemnum - 1);
   if (error) {
     console.error('获取帖子失败', error);
-    return null;
+    return [];
   }
 
   const formattedData = (data as PostWithUserInfo[]).map((item) => {
