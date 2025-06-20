@@ -25,10 +25,7 @@ export default function PostDetails() {
   const [isclickcomment, setIsClickComment] = useState(false);
   
 
-  
-
-  useEffect(() => {
-    const loadData = async () => {
+  const loadData = async () => {
     setLoading(true); // 开始加载
 
     try {
@@ -52,6 +49,9 @@ export default function PostDetails() {
     }
   };
 
+  useEffect(() => {
+    
+
   loadData();
 
     return () => {
@@ -61,14 +61,17 @@ export default function PostDetails() {
 
   //添加评论
   const handleAddComment = async () => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim()) {
+      alert('请输入评论内容');
+      return;
+    };
     
     const access = await addComment({ user_id: uid, post_id: String(id), content: commentText.trim(), user_avatar: avatar_url, author: name });
     if (access) {
       setCommentText('');
       textInputRef.current?.clear();
       textInputRef.current?.blur();
-      
+      loadData(); 
     }
   }
   //帖子正文
