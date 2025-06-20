@@ -1,10 +1,11 @@
+import { getCommunityNews } from "@/services/getCommunityNews";
 import { getLatestNews } from "@/services/getLatestNews";
 import getSelfPost from "@/services/getSelfPost";
 import { usePostStore } from "@/store/usePostStore";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import IndexContentItem from "./IndexContentItem";
-export default function IndexContent({uid}:{uid?:string}) {
+export default function IndexContent({ uid, selectCommunity='首页' }: { uid?: string, selectCommunity?: string }) {
   const posts = usePostStore((state) => state.posts);
   const [loading, setLoading] = useState(false);
 
@@ -14,18 +15,24 @@ export default function IndexContent({uid}:{uid?:string}) {
       return;
     }
     setLoading(true);
-    console.log(uid);
+    
     if(uid){
       const res = await getSelfPost(uid);
       usePostStore.getState().setPosts(res);
     }
-    else {
+    else if (selectCommunity === '首页') {
       const res = await getLatestNews();
+      usePostStore.getState().setPosts(res);
+    }
+    else if (selectCommunity !== '') {
+      const res =await getCommunityNews(0, 5, selectCommunity);
       usePostStore.getState().setPosts(res);
     }
     setLoading(false);
   }
-  
+  useEffect(() => {
+    loadPosts();
+  }, [selectCommunity]);
 
   useEffect(() => {
     loadPosts();
@@ -38,7 +45,7 @@ export default function IndexContent({uid}:{uid?:string}) {
     contentContainerStyle={{ paddingBottom: 40 }}
     onRefresh={loadPosts}     // 下拉刷新
     refreshing={loading}
-    ListEmptyComponent={<View><Text>暂无帖子</Text></View>}
+    ListEmptyComponent={<View className="flex items-center"><Text className="text-black text-3xl dark:text-zinc-300">---暂无帖子---</Text></View>}
   />
   );
 }
