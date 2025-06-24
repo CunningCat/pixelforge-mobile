@@ -10,7 +10,7 @@ export default function IndexContentItem({ post }: { post: Post }) {
       params: { id: post.post_id },
     })}>
       <View className=" flex flex-row items-center gap-2">
-        <Image className="w-5 h-5" source={{uri:post.avatar_url}} />
+        <Image className="w-5 h-5 rounded-full" source={{uri:post.avatar_url}} />
         <Text className="text-black text-2xl dark:text-zinc-300">{post.author}</Text>
       </View>
       <View className=" bg-white dark:bg-gray-900">
